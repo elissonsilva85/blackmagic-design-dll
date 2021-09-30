@@ -68,15 +68,34 @@ namespace SimpleSwitcher
 
 		public void ConectarSwitcher(string ip)
 		{
-			// Create switcher discovery object
-			IBMDSwitcherDiscovery discovery = new CBMDSwitcherDiscovery();
+			int tentativa = 0;
+			int maxTentativa = 3;
 
-			// Connect to switcher
-			discovery.ConnectTo(ip, out IBMDSwitcher switcher, out _BMDSwitcherConnectToFailure failureReason);
-			Console.WriteLine("Connected to switcher");
+			while (tentativa > maxTentativa)
+			{
+				tentativa++;
+				try
+				{
+					Console.WriteLine("Tentativa " + tentativa);
 
-			atem = new AtemSwitcher(switcher);
-			me0 = atem.MixEffectBlocks.First();
+					// Create switcher discovery object
+					IBMDSwitcherDiscovery discovery = new CBMDSwitcherDiscovery();
+
+					// Connect to switcher
+					discovery.ConnectTo(ip, out IBMDSwitcher switcher, out _BMDSwitcherConnectToFailure failureReason);
+					Console.WriteLine("Connected to switcher");
+
+					atem = new AtemSwitcher(switcher);
+					me0 = atem.MixEffectBlocks.First();
+					break;
+				}
+				catch (Exception e)
+                {
+					Console.WriteLine("Error: " + e.Message);
+					Console.WriteLine(e.StackTrace);
+					System.Threading.Thread.Sleep(500);
+				}
+			}
 		}
 
 		public void RunTest(string ip, int destInput, int transitionRate)
@@ -322,37 +341,8 @@ namespace SimpleSwitcher
 			Console.WriteLine("::AtivarLegendaCoral");
 			ConectarSwitcher(ip);
 
-			var configuration = new MapperConfiguration(cfg => { });
-			var mapper = new Mapper(configuration);
-
-			LumaParameters lumaParameters = mapper.Map<LumaParameters>(dynamicLumaParameters);
-			
-			//Ativar Legenda Coral
 			//- Setar PC em Chave Upstream 1
-			Console.WriteLine("Definindo PC em Chave Upstream 1");
-			IBMDSwitcherKey key = atem.SwitcherKey.ElementAt(0);
-			key.SetInputFill(GetInputId(atem.SwitcherInputsTypeExternal.ElementAt(lumaParameters.inputFill)));
-			key.SetInputCut(GetInputId(atem.SwitcherInputsTypeExternal.ElementAt(lumaParameters.inputKey)));
-
-			key.SetMasked(lumaParameters.masked);
-			key.SetMaskTop(lumaParameters.maskTop);
-			key.SetMaskBottom(lumaParameters.maskBottom);
-			key.SetMaskLeft(lumaParameters.maskLeft);
-			key.SetMaskRight(lumaParameters.maskRight);
-
-			IBMDSwitcherKeyLumaParameters keyLumaParameters = key as IBMDSwitcherKeyLumaParameters;
-			keyLumaParameters.SetPreMultiplied(lumaParameters.preMultiplied);
-			keyLumaParameters.SetClip((double)lumaParameters.preMultipliedClip);
-			keyLumaParameters.SetGain((double)lumaParameters.preMultipliedGain);
-			keyLumaParameters.SetInverse(lumaParameters.preMultipliedInvertKey);
-
-			//- Configurar posição
-			IBMDSwitcherKeyFlyParameters keyFlyParameters = key as IBMDSwitcherKeyFlyParameters;
-			keyFlyParameters.SetFly(lumaParameters.fly);
-			keyFlyParameters.SetSizeX(lumaParameters.flySizeX);
-			keyFlyParameters.SetSizeY(lumaParameters.flySizeY);
-			keyFlyParameters.SetPositionX(lumaParameters.flyPositionX);
-			keyFlyParameters.SetPositionY(lumaParameters.flyPositionY);
+			SetUpstream1(dynamicLumaParameters);
 
 			//- Ativar KEY1
 			Console.WriteLine("Ativando KEY 1");
@@ -385,6 +375,15 @@ namespace SimpleSwitcher
 			//- Desativar CUT
 			// Não localizei essa opção no SDK
 			// Vai ter que fazer na mão mesmo
+		}
+
+		public void AtivarUpstream1(string ip, dynamic dynamicLumaParameters)
+		{
+			Console.WriteLine("::AtivarUpstream1");
+			ConectarSwitcher(ip);
+
+			//- Setar Chave Upstream 1
+			SetUpstream1(dynamicLumaParameters);
 		}
 
 		public void DefinirSaidaAuxiliar(string ip, string tipoInput, int inputIndex)
@@ -438,6 +437,44 @@ namespace SimpleSwitcher
 		{
 			input.GetInputId(out long id);
 			return id;
+		}
+
+		public void SetUpstream1(dynamic dynamicLumaParameters)
+		{
+			Console.WriteLine("::SetUpstream1");
+
+			var configuration = new MapperConfiguration(cfg => { });
+			var mapper = new Mapper(configuration);
+
+			LumaParameters lumaParameters = mapper.Map<LumaParameters>(dynamicLumaParameters);
+
+			//Ativar Legenda Coral
+			//- Setar PC em Chave Upstream 1
+			Console.WriteLine("Definindo PC em Chave Upstream 1");
+			IBMDSwitcherKey key = atem.SwitcherKey.ElementAt(0);
+			key.SetInputFill(GetInputId(atem.SwitcherInputsTypeExternal.ElementAt(lumaParameters.inputFill)));
+			key.SetInputCut(GetInputId(atem.SwitcherInputsTypeExternal.ElementAt(lumaParameters.inputKey)));
+
+			key.SetMasked(lumaParameters.masked);
+			key.SetMaskTop(lumaParameters.maskTop);
+			key.SetMaskBottom(lumaParameters.maskBottom);
+			key.SetMaskLeft(lumaParameters.maskLeft);
+			key.SetMaskRight(lumaParameters.maskRight);
+
+			IBMDSwitcherKeyLumaParameters keyLumaParameters = key as IBMDSwitcherKeyLumaParameters;
+			keyLumaParameters.SetPreMultiplied(lumaParameters.preMultiplied);
+			keyLumaParameters.SetClip((double)lumaParameters.preMultipliedClip);
+			keyLumaParameters.SetGain((double)lumaParameters.preMultipliedGain);
+			keyLumaParameters.SetInverse(lumaParameters.preMultipliedInvertKey);
+
+			//- Configurar posição
+			IBMDSwitcherKeyFlyParameters keyFlyParameters = key as IBMDSwitcherKeyFlyParameters;
+			keyFlyParameters.SetFly(lumaParameters.fly);
+			keyFlyParameters.SetSizeX(lumaParameters.flySizeX);
+			keyFlyParameters.SetSizeY(lumaParameters.flySizeY);
+			keyFlyParameters.SetPositionX(lumaParameters.flyPositionX);
+			keyFlyParameters.SetPositionY(lumaParameters.flyPositionY);
+
 		}
 
 		private void SetProgramPreview(bool ehPrograma, string tipoInput, int inputIndex)
