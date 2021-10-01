@@ -66,42 +66,85 @@ namespace SimpleSwitcher
 		private AtemSwitcher atem = null;
 		IBMDSwitcherMixEffectBlock me0 = null;
 
-		public void ConectarSwitcher(string ip)
+		/*
+		public static void Main(string[] args)
+		{
+			// Display the number of command line arguments.
+			Console.WriteLine("Teste");
+			RunCommands run = new RunCommands();
+			run.ConectarSwitcher("192.168.0.100");
+		}
+		*/
+
+		public bool ConectarSwitcher(string ip)
 		{
 			int tentativa = 0;
 			int maxTentativa = 3;
+			_BMDSwitcherConnectToFailure failReason = 0;
+			bool conectado = false;
 
-			while (tentativa > maxTentativa)
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
+			Console.WriteLine("::ConectarSwitcher");
+
+			while (tentativa < maxTentativa)
 			{
 				tentativa++;
 				try
 				{
-					Console.WriteLine("Tentativa " + tentativa);
+					Console.WriteLine("Tentativa de conexão (" + tentativa + ")");
 
 					// Create switcher discovery object
 					IBMDSwitcherDiscovery discovery = new CBMDSwitcherDiscovery();
 
 					// Connect to switcher
-					discovery.ConnectTo(ip, out IBMDSwitcher switcher, out _BMDSwitcherConnectToFailure failureReason);
-					Console.WriteLine("Connected to switcher");
+					discovery.ConnectTo(ip, out IBMDSwitcher switcher, out failReason);
+					Console.WriteLine("Connectado ao switcher");
 
 					atem = new AtemSwitcher(switcher);
 					me0 = atem.MixEffectBlocks.First();
+
+					conectado = true;
 					break;
 				}
-				catch (Exception e)
+				catch (COMException e1)
+				{
+					// An exception will be thrown if ConnectTo fails.
+					if (failReason == _BMDSwitcherConnectToFailure.bmdSwitcherConnectToFailureNoResponse)
+					{
+						System.Threading.Thread.Sleep(3000);
+					}
+					else if (failReason == _BMDSwitcherConnectToFailure.bmdSwitcherConnectToFailureIncompatibleFirmware)
+					{
+						Console.WriteLine("Switcher tem um firmware incompatível");
+						break;
+					}
+					else 
+					{ 
+						Console.WriteLine("Conexão falhou por um erro desconhecido");
+						Console.WriteLine("Mensagem: " + e1.Message);
+						Console.WriteLine(e1.StackTrace);
+						break;
+					}
+				}
+				catch (Exception e2)
                 {
-					Console.WriteLine("Error: " + e.Message);
-					Console.WriteLine(e.StackTrace);
-					System.Threading.Thread.Sleep(500);
+					Console.WriteLine("Ocorreu uma exceção no sistema");
+					Console.WriteLine("Mensagem: " + e2.Message);
+					Console.WriteLine(e2.StackTrace);
+					break;
 				}
 			}
+
+			return conectado;
 		}
 
 		public void RunTest(string ip, int destInput, int transitionRate)
 		{
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::RunTest");
-			ConectarSwitcher(ip);
+			if(!ConectarSwitcher(ip)) return;
 
 			// Get reference to various objects
 
@@ -143,8 +186,11 @@ namespace SimpleSwitcher
 
 		public void SwitcherStatus(string ip)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::SwitcherStatus");
-			ConectarSwitcher(ip);
 
 			// Get reference to various objects
 			Console.WriteLine("");
@@ -158,8 +204,11 @@ namespace SimpleSwitcher
 
 		public void CarregarImagemTemaCulto(string ip, int imagemIndex)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::CarregarImagemTemaCulto");
-			ConectarSwitcher(ip);
 
 			//Carregar imagem do tema do culto
 
@@ -186,8 +235,11 @@ namespace SimpleSwitcher
 
 		public void ExecutarAberturaCulto(string ip, int tempoTransicao)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::ExecutarAberturaCulto");
-			ConectarSwitcher(ip);
 
 			IBMDSwitcherTransitionParameters me0TransitionParams = me0 as IBMDSwitcherTransitionParameters;
 			IBMDSwitcherTransitionMixParameters me0MixTransitionParams = me0 as IBMDSwitcherTransitionMixParameters;
@@ -219,8 +271,11 @@ namespace SimpleSwitcher
 
 		public void ExibirOferta(string ip, int imagemIndex)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::ExibirOferta");
-			ConectarSwitcher(ip);
 
 			//Exibir Oferta
 			//- Verifica se não está no ar
@@ -253,8 +308,11 @@ namespace SimpleSwitcher
 
 		public void OcultarOferta(string ip)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::OcultarOferta");
-			ConectarSwitcher(ip);
 
 			//Ocultar Oferta
 			//- Verifica se não está no ar
@@ -277,8 +335,11 @@ namespace SimpleSwitcher
 
 		public void ExecutarEncerramentoCulto(string ip, int imagemIndexEncerramento, int inputEncerramento, int tempoTransicao, int tempoEsperaAntesDeEncerrar)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::ExecutarEncerramentoCulto");
-			ConectarSwitcher(ip);
 
 			IBMDSwitcherTransitionParameters me0TransitionParams = me0 as IBMDSwitcherTransitionParameters;
 			IBMDSwitcherTransitionMixParameters me0MixTransitionParams = me0 as IBMDSwitcherTransitionMixParameters;
@@ -338,8 +399,11 @@ namespace SimpleSwitcher
 
 		public void AtivarLegendaCoral(string ip, dynamic dynamicLumaParameters)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::AtivarLegendaCoral");
-			ConectarSwitcher(ip);
 
 			//- Setar PC em Chave Upstream 1
 			SetUpstream1(dynamicLumaParameters);
@@ -359,8 +423,11 @@ namespace SimpleSwitcher
 
 		public void DesativarLegendaCoral(string ip)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::DesativarLegendaCoral");
-			ConectarSwitcher(ip);
 
 			IBMDSwitcherTransitionParameters me0TransitionParams = me0 as IBMDSwitcherTransitionParameters;
 			
@@ -379,8 +446,11 @@ namespace SimpleSwitcher
 
 		public void AtivarUpstream1(string ip, dynamic dynamicLumaParameters)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::AtivarUpstream1");
-			ConectarSwitcher(ip);
 
 			//- Setar Chave Upstream 1
 			SetUpstream1(dynamicLumaParameters);
@@ -388,8 +458,11 @@ namespace SimpleSwitcher
 
 		public void DefinirSaidaAuxiliar(string ip, string tipoInput, int inputIndex)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::DefinirSaidaAuxiliar");
-			ConectarSwitcher(ip);
 
 			//DefinirSaidaAuxiliar
 			//- Setar Auxiliar 1 para a recebida por parametro
@@ -398,29 +471,41 @@ namespace SimpleSwitcher
 
 		public void DefinirPreview(string ip, string tipoInput, int inputIndex)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::DefinirPreview");
-			ConectarSwitcher(ip);
 			SetProgramPreview(false, tipoInput, inputIndex);
 		}
 
 		public void DefinirProgram(string ip, string tipoInput, int inputIndex)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::DefinirProgram");
-			ConectarSwitcher(ip);
 			SetProgramPreview(true, tipoInput, inputIndex);
 		}
 
 		public void PerformAutoTransition(string ip)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::PerformAutoTransition");
-			ConectarSwitcher(ip);
 			me0.PerformAutoTransition();
 		}
 
 		public void ListarSwitcherInputs(string ip)
 		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::ListarSwitcherInputs");
-			ConectarSwitcher(ip);
 
 			int i = 0;
 
@@ -441,6 +526,8 @@ namespace SimpleSwitcher
 
 		public void SetUpstream1(dynamic dynamicLumaParameters)
 		{
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::SetUpstream1");
 
 			var configuration = new MapperConfiguration(cfg => { });
@@ -479,6 +566,8 @@ namespace SimpleSwitcher
 
 		private void SetProgramPreview(bool ehPrograma, string tipoInput, int inputIndex)
 		{
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("PGM/Preview :: Carregando saida");
 			IBMDSwitcherInput switcherInput = null;
 
@@ -526,6 +615,8 @@ namespace SimpleSwitcher
 
 		private void SetAuxiliaryOutput(string tipoInput, int inputIndex)
 		{
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
 			Console.WriteLine("AUX :: Carregando objeto auxOutput");
 			IBMDSwitcherInputAux auxOutput = atem.SwitcherInputsTypeAuxOutput.ElementAt(0) as IBMDSwitcherInputAux;
 
