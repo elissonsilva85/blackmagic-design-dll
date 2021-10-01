@@ -28,8 +28,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
 using BMDSwitcherAPI;
@@ -39,6 +37,8 @@ namespace SimpleSwitcher
 {
 	public class LumaParameters
 	{
+		public int onAir = 0;
+
 		public int inputFill = 0;
 		public int inputKey = 0;
 
@@ -64,7 +64,7 @@ namespace SimpleSwitcher
 	{
 		private int tempoTransicaoPadrao = 20;
 		private AtemSwitcher atem = null;
-		IBMDSwitcherMixEffectBlock me0 = null;
+		private IBMDSwitcherMixEffectBlock me0 = null;
 
 		/*
 		public static void Main(string[] args)
@@ -78,6 +78,8 @@ namespace SimpleSwitcher
 
 		public bool ConectarSwitcher(string ip)
 		{
+			if (atem != null) return true;
+
 			int tentativa = 0;
 			int maxTentativa = 3;
 			_BMDSwitcherConnectToFailure failReason = 0;
@@ -539,6 +541,8 @@ namespace SimpleSwitcher
 			//- Setar PC em Chave Upstream 1
 			Console.WriteLine("Definindo PC em Chave Upstream 1");
 			IBMDSwitcherKey key = atem.SwitcherKey.ElementAt(0);
+			key.SetOnAir(lumaParameters.onAir);
+
 			key.SetInputFill(GetInputId(atem.SwitcherInputsTypeExternal.ElementAt(lumaParameters.inputFill)));
 			key.SetInputCut(GetInputId(atem.SwitcherInputsTypeExternal.ElementAt(lumaParameters.inputKey)));
 
