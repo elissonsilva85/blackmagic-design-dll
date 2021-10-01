@@ -539,7 +539,7 @@ namespace SimpleSwitcher
 
 			//Ativar Legenda Coral
 			//- Setar PC em Chave Upstream 1
-			Console.WriteLine("Definindo PC em Chave Upstream 1");
+			Console.WriteLine("Definindo input " + lumaParameters.inputFill + " em Chave Upstream 1");
 			IBMDSwitcherKey key = atem.SwitcherKey.ElementAt(0);
 			key.SetOnAir(lumaParameters.onAir);
 
@@ -572,7 +572,9 @@ namespace SimpleSwitcher
 		{
 			Console.WriteLine("");
 			Console.WriteLine("----------------------------------");
-			Console.WriteLine("PGM/Preview :: Carregando saida");
+			Console.WriteLine("::SetProgramPreview");
+
+			String strPgmPreview = (ehPrograma ? "PGM" : "Preview");
 			IBMDSwitcherInput switcherInput = null;
 
 			switch (tipoInput)
@@ -582,13 +584,13 @@ namespace SimpleSwitcher
 					// 1 - Cam2
 					// ...
 					// 7 - Cam8
-					Console.WriteLine("AUX :: Buscando saida Externa");
+					Console.WriteLine(strPgmPreview + " :: Buscando saida Externa");
 					switcherInput = atem.SwitcherInputsTypeExternal.ElementAt(inputIndex);
 					break;
 				case "media":
 					// 0 - MP1
 					// 1 - MP2
-					Console.WriteLine("AUX :: Buscando saida Media Player");
+					Console.WriteLine(strPgmPreview + " :: Buscando saida Media Player");
 					switcherInput = atem.SwitcherInputsTypeMediaPlayerFill.ElementAt(inputIndex);
 					break;
 				case "output":
@@ -596,31 +598,28 @@ namespace SimpleSwitcher
 					// 1 - Clean Feed 2
 					// 2 - Program (PGM)
 					// 3 - Preview
-					Console.WriteLine("AUX :: Buscando saida Output");
+					Console.WriteLine(strPgmPreview + " :: Buscando saida Output");
 					switcherInput = atem.SwitcherInputsTypeMixEffectBlockOutput.ElementAt(inputIndex);
 					break;
 				default:
-					throw new Exception("Tipo [" + tipoInput + "] não identificado");
+					throw new Exception(strPgmPreview + " :: Tipo [" + tipoInput + "] não identificado");
 					break;
 			}
 
+			Console.WriteLine(strPgmPreview + " :: Definindo saida");
 			if(ehPrograma)
-            {
-				Console.WriteLine("PGM/Preview :: Definindo saida PGM");
 				me0.SetProgramInput(GetInputId(switcherInput));
-			}
 			else
-            {
-				Console.WriteLine("PGM/Preview :: Definindo saida Preview");
 				me0.SetPreviewInput(GetInputId(switcherInput));
-			}
-
 		}
 
 		private void SetAuxiliaryOutput(string tipoInput, int inputIndex)
 		{
 			Console.WriteLine("");
 			Console.WriteLine("----------------------------------");
+			Console.WriteLine("::SetAuxiliaryOutput");
+			
+			
 			Console.WriteLine("AUX :: Carregando objeto auxOutput");
 			IBMDSwitcherInputAux auxOutput = atem.SwitcherInputsTypeAuxOutput.ElementAt(0) as IBMDSwitcherInputAux;
 
@@ -651,11 +650,11 @@ namespace SimpleSwitcher
 					switcherInput = atem.SwitcherInputsTypeMixEffectBlockOutput.ElementAt(inputIndex);
 					break;
 				default:
-					throw new Exception("Tipo [" + tipoInput + "] não identificado");
+					throw new Exception("AUX :: Tipo [" + tipoInput + "] não identificado");
 					break;
 			}
 
-			Console.WriteLine("AUX :: Definindo saida no auxiliar");
+			Console.WriteLine("AUX :: Definindo saida");
 			auxOutput.SetInputSource(GetInputId(switcherInput));
 		}
 
