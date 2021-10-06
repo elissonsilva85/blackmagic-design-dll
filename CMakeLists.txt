@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.12.1)
 
-PROJECT(SimpleSwitcher LANGUAGES CSharp)
+PROJECT(SimpleSwitcher VERSION 1.0.0 DESCRIPTION "Simple BlackMagic Desing Switcher DLL" LANGUAGES CSharp)
 SET(CMAKE_CSharp_FLAGS "/langversion:7")
 
 # Option to set path for ATEM Switchers SDK
@@ -51,7 +51,7 @@ ADD_CUSTOM_TARGET(SwitchersAPI_Interop_Target
         )
 
 # Add C# projects
-ADD_EXECUTABLE(SimpleSwitcher
+ADD_LIBRARY(SimpleSwitcher
         Program.cs
         )
 
@@ -60,6 +60,7 @@ ADD_DEPENDENCIES(SimpleSwitcher SwitchersAPI_Interop_Target)
 TARGET_COMPILE_OPTIONS(SimpleSwitcher PRIVATE "/platform:${CSHARP_PLATFORM}")
 
 SET_TARGET_PROPERTIES(SimpleSwitcher PROPERTIES 
+		VERSION ${PROJECT_VERSION}
         VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.6.1" 
         VS_DOTNET_REFERENCES "Microsoft.CSharp;System"
         #VS_PACKAGE_REFERENCES "AutoMapper_10.1.1"

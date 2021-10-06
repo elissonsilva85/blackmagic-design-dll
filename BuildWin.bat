@@ -7,3 +7,10 @@ mkdir build
 cd build
 cmake -G "Visual Studio 16 2019" -A x64 -DSWITCHERS_SDK_INCLUDE_DIR="%SwitchersSDK_Include_DIR%" ..
 cmake --build . --config Release
+
+cd ..
+mkdir dist
+cd dist
+xcopy /s ..\build\Release\*.* .
+
+cd..

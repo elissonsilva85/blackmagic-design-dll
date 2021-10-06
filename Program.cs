@@ -271,27 +271,27 @@ namespace SimpleSwitcher
 			System.Threading.Thread.Sleep(100);
 		}
 
-		public void ExibirOferta(string ip, int imagemIndex)
+		public void AtivarDownstreamKey(string ip, int dskIndex, int imagemIndex)
 		{
 			if (!ConectarSwitcher(ip)) return;
 
 			Console.WriteLine("");
 			Console.WriteLine("----------------------------------");
-			Console.WriteLine("::ExibirOferta");
+			Console.WriteLine("::AtivarDownstreamKey");
 
 			//Exibir Oferta
 			//- Verifica se não está no ar
 			Console.WriteLine("Verifica se não está no ar");
-			IBMDSwitcherDownstreamKey downstream = atem.DownstreamInputs.ElementAt(0);
+			IBMDSwitcherDownstreamKey downstream = atem.DownstreamInputs.ElementAt(dskIndex);
 			downstream.GetOnAir(out int onair);
 			if (onair == 1)
 			{
-				Console.WriteLine("DSK 1 já está em exibição");
+				Console.WriteLine("DSK " + (dskIndex+1) + " já está em exibição");
 				return;
 			}
 
 			//- Carregar imagem da oferta em MP1
-			Console.WriteLine("Carregando imagem da oferta em MP1");
+			Console.WriteLine("Carregando imagem em MP1");
 			IBMDSwitcherMediaPlayer mediaPlayer = atem.MediaPlayerInputs.ElementAt(0);
 			mediaPlayer.SetSource(_BMDSwitcherMediaPlayerSourceType.bmdSwitcherMediaPlayerSourceTypeStill, (uint)imagemIndex);
 
@@ -301,34 +301,34 @@ namespace SimpleSwitcher
 			System.Threading.Thread.Sleep(100);
 
 			//- Fazer o fade do DSK1
-			Console.WriteLine("Exibindo DSK 1");
+			Console.WriteLine("Exibindo DSK " + (dskIndex+1));
 			downstream.PerformAutoTransition();
 			System.Threading.Thread.Sleep(15 * (1 / 30) * 1000);
 
 			System.Threading.Thread.Sleep(100);
 		}
 
-		public void OcultarOferta(string ip)
+		public void DesativarDownstreamKey(string ip, int dskIndex)
 		{
 			if (!ConectarSwitcher(ip)) return;
 
 			Console.WriteLine("");
 			Console.WriteLine("----------------------------------");
-			Console.WriteLine("::OcultarOferta");
+			Console.WriteLine("::DesativarDownstreamKey");
 
 			//Ocultar Oferta
 			//- Verifica se não está no ar
 			Console.WriteLine("Verifica se está no ar");
-			IBMDSwitcherDownstreamKey downstream = atem.DownstreamInputs.ElementAt(0);
+			IBMDSwitcherDownstreamKey downstream = atem.DownstreamInputs.ElementAt(dskIndex);
 			downstream.GetOnAir(out int onair);
 			if (onair == 0)
 			{
-				Console.WriteLine("DSK 1 não está em exibição");
+				Console.WriteLine("DSK " + (dskIndex+1) + " não está em exibição");
 				return;
 			}
 
 			//- Fazer o fade do DSK1
-			Console.WriteLine("Ocultando DSK 1");
+			Console.WriteLine("Ocultando DSK " + (dskIndex+1));
 			downstream.PerformAutoTransition();
 			System.Threading.Thread.Sleep(15 * (1 / 30) * 1000);
 
@@ -458,6 +458,18 @@ namespace SimpleSwitcher
 			SetUpstream1(dynamicLumaParameters);
 		}
 
+		public void DesativarUpstream1(string ip)
+		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
+			Console.WriteLine("::DesativarUpstream1");
+
+			IBMDSwitcherKey key = atem.SwitcherKey.ElementAt(0);
+			key.SetOnAir(0);
+		}
+
 		public void DefinirSaidaAuxiliar(string ip, string tipoInput, int inputIndex)
 		{
 			if (!ConectarSwitcher(ip)) return;
@@ -499,6 +511,16 @@ namespace SimpleSwitcher
 			Console.WriteLine("----------------------------------");
 			Console.WriteLine("::PerformAutoTransition");
 			me0.PerformAutoTransition();
+		}
+
+		public void PerformCut(string ip)
+		{
+			if (!ConectarSwitcher(ip)) return;
+
+			Console.WriteLine("");
+			Console.WriteLine("----------------------------------");
+			Console.WriteLine("::PerformCut");
+			me0.PerformCut();
 		}
 
 		public void ListarSwitcherInputs(string ip)
